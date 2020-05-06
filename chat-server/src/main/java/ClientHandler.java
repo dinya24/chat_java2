@@ -46,6 +46,17 @@ public class ClientHandler implements Runnable {
         out.flush();
     }
 
+    public void wisperMsg(ClientHandler from, String to, String msg) throws IOException {
+
+        for (ClientHandler client: Server.getClients()) {
+            if(client.getNickName().equals(to)) {
+                client.sendMessage("[W from: " + from.getNickName() + "] " + msg);
+                break;
+            }
+        }
+        from.sendMessage("[W to: " + to + "] " + msg);
+    }
+
     @Override
     public void run() {
         while (running) {
@@ -57,6 +68,16 @@ public class ClientHandler implements Runnable {
                         sendMessage(clientMessage);
                         break;
                     }
+
+                 if (clientMessage.startsWith("/w")){
+                     String to = clientMessage.split(" ")[1];
+                     String msg = clientMessage.split(" ")[2];
+                     wisperMsg(this,to,msg);
+                 }
+                 else {
+                     broadCastMessage(" [ " + this.nickName + " ] " + clientMessage);
+                 }
+
                     System.out.println(clientMessage);
                     broadCastMessage(clientMessage);
                 }
@@ -64,5 +85,6 @@ public class ClientHandler implements Runnable {
                 e.printStackTrace();
             }
         }
+
     }
 }
